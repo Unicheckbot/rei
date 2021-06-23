@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "rei"
+version = "0.1.0"
+description = ""
+authors = ["kiriharu <kiriharu@yandex.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+starlette = "^0.14.2"
+uvicorn = "^0.14.0"
+core = {path = "../core"}
+requests = "^2.25.1"
+icmplib = "^3.0"
+mcstatus = "^6.1.0"
+python-a2s = "^1.3.0"
+APScheduler = "^3.7.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

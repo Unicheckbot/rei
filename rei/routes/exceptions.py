@@ -1,0 +1,2 @@
+class TargetOrPortInvalid(Exception):
+    pass
