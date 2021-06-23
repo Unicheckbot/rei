@@ -6,6 +6,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route, Mount
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from rei.middleware import AuthMiddleware, NodeInfoMiddleware
 from rei.routes.checkers import routes as checkers_routes
@@ -23,7 +24,8 @@ scheduler = AsyncIOScheduler()
 
 middleware = [
     Middleware(NodeInfoMiddleware),
-    Middleware(AuthMiddleware, auth_token=TOKEN)
+    Middleware(AuthMiddleware, auth_token=TOKEN),
+    Middleware(ProxyHeadersMiddleware, trusted_hosts="*"),
 ]
 
 routes = [
