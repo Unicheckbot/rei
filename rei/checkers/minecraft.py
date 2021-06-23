@@ -4,7 +4,7 @@ from core.coretypes import (
     Response, Error, ErrorCodes, MinecraftResponse, ResponseStatus, MinecraftDetails
 )
 from mcstatus import MinecraftServer
-from .base import BaseChecker
+from rei.checkers.base import BaseChecker
 import socket
 
 
