@@ -12,15 +12,15 @@ NODE_TOWN = os.environ.get("NODE_TOWN", "Undefined")
 NODE_COUNTRY = os.environ.get("NODE_COUNTRY", "Location")
 
 # Secret key for announce server. Should be requested.
-ANNOUNCE_SERVER_SECRET = os.environ.get("ACCESS_TOKEN", "test")
-ANNOUNCE_SERVER_URL = os.environ.get("ANNOUNCE_SERVER_URL", "http://unicheck.kiriha.ru")
+ANNOUNCE_SERVER_SECRET = os.environ.get("ANNOUNCE_SERVER_SECRET", "GET_SECRET_FROM_ADMIN")
+ANNOUNCE_SERVER_URL = os.environ.get("ANNOUNCE_SERVER_URL", "https://unicheck.kiriha.ru")
 
 # DON'T CHANGE LINES BELOW
 TOKEN = secrets.token_urlsafe(32)
 VERSION = "0.1.1"
 NAME = "Rei"
 
-DEBUG = os.getenv("DEBUG", True)
+DEBUG = int(os.getenv("DEBUG", 1))
 
 METHODS_COUNTER = {
     "http": 0,
