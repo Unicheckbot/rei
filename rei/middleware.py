@@ -3,7 +3,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
 
-from config import NODE_NAME, NODE_TOWN, NODE_COUNTRY
+from rei.config import NODE_NAME, NODE_TOWN, NODE_COUNTRY
 
 
 class AuthMiddleware(BaseHTTPMiddleware):

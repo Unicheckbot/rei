@@ -2,7 +2,7 @@ version: '3.3'
 services:
   api:
     build: .
-    command: uvicorn rei:app --port 8000 --host 0.0.0.0 --proxy-headers --no-use-colors
+    command: uvicorn rei.app:app --port 8000 --host 0.0.0.0 --proxy-headers --no-use-colors
     ports:
       - ${PORT}:8000
     env_file:
