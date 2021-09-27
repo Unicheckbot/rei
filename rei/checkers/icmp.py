@@ -24,7 +24,7 @@ class ICMPChecker(BaseChecker):
     async def check(self) -> Response:
 
         try:
-            host = await async_ping(self.target)
+            host = await async_ping(self.target, privileged=False)
         except NameLookupError:
             return self.create_not_alive_response()
 
