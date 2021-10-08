@@ -8,7 +8,7 @@ authors = ["kiriharu <kiriharu@yandex.ru>"]
 python = "^3.9"
 starlette = "^0.14.2"
 uvicorn = "^0.14.0"
-core = {path = "core"}
+core = { git = "https://github.com/unicheckbot/core.git", branch = "main" }
 requests = "^2.25.1"
 icmplib = "^3.0"
 mcstatus = "^6.1.0"
