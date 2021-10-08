@@ -5,6 +5,7 @@ from core.coretypes import (
     Response, Error, ErrorCodes, ResponseStatus, ICMPCheckerResponse, ICMPDetails
 )
 from rei.checkers.base import BaseChecker
+from rei.config import ICMP_PRIVILEGED
 
 
 class ICMPChecker(BaseChecker):
@@ -24,7 +25,7 @@ class ICMPChecker(BaseChecker):
     async def check(self) -> Response:
 
         try:
-            host = await async_ping(self.target, privileged=False)
+            host = await async_ping(self.target, privileged=ICMP_PRIVILEGED)
         except NameLookupError:
             return self.create_not_alive_response()
 

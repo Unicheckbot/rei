@@ -15,6 +15,10 @@ NODE_COUNTRY = os.environ.get("NODE_COUNTRY", "Location")
 ANNOUNCE_SERVER_SECRET = os.environ.get("ANNOUNCE_SERVER_SECRET", "GET_SECRET_FROM_ADMIN")
 ANNOUNCE_SERVER_URL = os.environ.get("ANNOUNCE_SERVER_URL", "https://unicheck.kiriha.ru")
 
+# Is icmp requests privileged. Some users need to host Rei instance outside docker without root access.
+# Set this variable to 0 (False) if you want to run icmp requests unprivileged
+ICMP_PRIVILEGED = int(os.environ.get("ICMP_PRIVILEGED", True))
+
 # DON'T CHANGE LINES BELOW
 TOKEN = secrets.token_urlsafe(32)
 VERSION = "0.1.1"
