@@ -1,7 +1,9 @@
+from requests import Session
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 from starlette.routing import Route
 
+from rei.checkers.spt import SPTChecker
 from rei.routes.utils import check_target_port, Counter
 from rei.checkers.http import HttpChecker
 from rei.checkers.icmp import ICMPChecker
@@ -45,10 +47,18 @@ async def source(request: Request):
     checker = SourceChecker(target, port)
     return JSONResponse((await checker.check()).dict())
 
+
+@Counter('spt')
+async def spt(request: Request):
+    target = request.query_params.get("target")
+    checker = SPTChecker(target=target, session=Session())
+    return JSONResponse((await checker.check()).dict())
+
 routes = [
     Route('/http', http),
     Route('/icmp', icmp),
     Route('/minecraft', minecraft),
     Route('/tcp', tcp),
-    Route('/source', source)
+    Route('/source', source),
+    Route('/spt', spt)
 ]
