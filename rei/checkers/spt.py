@@ -1,31 +1,11 @@
 import json
 import zlib
 
-from core.coretypes import Response, ResponseStatus, Error, ErrorCodes
-from pydantic import BaseModel, Field
+from core.coretypes import Response, ResponseStatus, Error, ErrorCodes, SPTConfig, SPTMod, SPTServerResponse
 from requests import Session
 
 from rei.checkers.base import BaseChecker
 
-
-class SPTConfig(BaseModel):
-    backend_url: str = Field(alias="backendUrl")
-    name: str
-    editions: list[str]
-
-
-class SPTMod(BaseModel):
-    name: str
-    version: str
-    author: str
-    license: str
-
-
-class SPTServerResponse(BaseModel):
-    aki_version: str
-    game_version: str
-    config: SPTConfig
-    mods: list[SPTMod]
 
 
 class SPTChecker(BaseChecker):
