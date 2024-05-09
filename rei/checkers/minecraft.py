@@ -1,4 +1,6 @@
 from typing import Optional, Union
+from asyncio.exceptions import TimeoutError as AsyncTimeoutError
+import socket
 
 from core.coretypes import (
     Response,
@@ -8,9 +10,10 @@ from core.coretypes import (
     ResponseStatus,
     MinecraftDetails
 )
-from mcstatus import JavaServer
+from mcstatus import JavaServer, BedrockServer
+from mcstatus.status_response import BaseStatusResponse
+
 from rei.checkers.base import BaseChecker
-import socket
 
 
 class MinecraftChecker(BaseChecker[MinecraftResponse]):
@@ -23,12 +26,29 @@ class MinecraftChecker(BaseChecker[MinecraftResponse]):
         else:
             self.address = f"{self.target}:{self.port}"
 
-    async def check(self) -> Union[Response[Error], Response[MinecraftResponse]]:
+    async def _get_server_status(self) -> Union[None, BaseStatusResponse]:
+        errors = (socket.gaierror, ConnectionRefusedError, TimeoutError, AsyncTimeoutError)
 
         try:
-            server = JavaServer.lookup(self.address)
-            status = await server.async_status()
-        except (socket.gaierror, ConnectionRefusedError, TimeoutError):
+            java_server = await JavaServer.async_lookup(self.address)
+            java_status = await java_server.async_status()
+            return java_status
+        except errors:
+            pass
+
+        try:
+            bedrock_server = BedrockServer.lookup(self.address)
+            bedrock_status = await bedrock_server.async_status()
+            return bedrock_status
+        except errors:
+            pass
+
+        return None
+
+    async def check(self) -> Union[Response[Error], Response[MinecraftResponse]]:
+
+        status = await self._get_server_status()
+        if not status:
             return Response[Error](
                 status=ResponseStatus.ERROR,
                 payload=Error(
