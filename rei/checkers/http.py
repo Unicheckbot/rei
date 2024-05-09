@@ -26,7 +26,7 @@ class HttpChecker(BaseChecker[HttpCheckerResponse]):
         self.session = Session()
 
     def request(self, url: str) -> RequestResponse:
-        return self.session.head(
+        return self.session.get(
             url,
             allow_redirects=True,
         )
