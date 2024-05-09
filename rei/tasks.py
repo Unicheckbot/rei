@@ -38,4 +38,4 @@ async def register_node(client: AsyncClient) -> None:
                     logger.info("Server status updated successfully")
         except Exception as e:
             logger.error(f"Other exception has been occurred in register node process: {e}")
-        await asyncio.sleep(5)
+        await asyncio.sleep(60)
