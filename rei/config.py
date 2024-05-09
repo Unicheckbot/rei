@@ -20,7 +20,7 @@ ANNOUNCE_SERVER_URL = os.environ.get("ANNOUNCE_SERVER_URL", "https://unicheck.ki
 ICMP_PRIVILEGED = int(os.environ.get("ICMP_PRIVILEGED", True))
 
 # DON'T CHANGE LINES BELOW
-TOKEN = "test"
+TOKEN = secrets.token_urlsafe(32)
 VERSION = "0.1.1"
 NAME = "Rei"
 
