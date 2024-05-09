@@ -1,11 +1,14 @@
-from core.coretypes import Response
-from abc import ABC
+from typing import Generic, TypeVar, Union
+
+from core.coretypes import Response, Error
+
+T = TypeVar("T")
 
 
-class BaseChecker(ABC):
+class BaseChecker(Generic[T]):
 
     def __init__(self, target: str):
         self.target = target
 
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[T]]:
         raise NotImplementedError

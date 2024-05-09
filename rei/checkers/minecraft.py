@@ -1,14 +1,20 @@
-from typing import Optional
+from typing import Optional, Union
 
 from core.coretypes import (
-    Response, Error, ErrorCodes, MinecraftResponse, ResponseStatus, MinecraftDetails
+    Response,
+    Error,
+    ErrorCodes,
+    MinecraftResponse,
+    ResponseStatus,
+    MinecraftDetails
 )
-from mcstatus import MinecraftServer
+# TODO: fix types here
+from mcstatus import MinecraftServer # type: ignore
 from rei.checkers.base import BaseChecker
 import socket
 
 
-class MinecraftChecker(BaseChecker):
+class MinecraftChecker(BaseChecker[MinecraftResponse]):
 
     def __init__(self, target: str, port: Optional[int]):
         super().__init__(target)
@@ -18,7 +24,7 @@ class MinecraftChecker(BaseChecker):
         else:
             self.address = f"{self.target}:{self.port}"
 
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[MinecraftResponse]]:
 
         try:
             server = MinecraftServer.lookup(self.address)

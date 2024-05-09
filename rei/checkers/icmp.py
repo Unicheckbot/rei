@@ -1,36 +1,43 @@
-from icmplib import async_ping
-from icmplib.exceptions import NameLookupError
+from typing import Union
+
+from icmplib import async_ping  # type: ignore
+from icmplib.exceptions import NameLookupError  # type: ignore
 
 from core.coretypes import (
-    Response, Error, ErrorCodes, ResponseStatus, ICMPCheckerResponse, ICMPDetails
+    Response,
+    Error,
+    ErrorCodes,
+    ResponseStatus,
+    ICMPCheckerResponse,
+    ICMPDetails
 )
 from rei.checkers.base import BaseChecker
 from rei.config import ICMP_PRIVILEGED
 
 
-class ICMPChecker(BaseChecker):
+def create_not_alive_response() -> Response[Error]:
+    return Response[Error](
+        status=ResponseStatus.ERROR,
+        payload=Error(
+            code=ErrorCodes.ICMPHostNotAlive,
+            message="Хост не доступен для ICMP проверки"
+        )
+    )
+
+
+class ICMPChecker(BaseChecker[ICMPCheckerResponse]):
 
     def __init__(self, target: str):
         super().__init__(target)
 
-    def create_not_alive_response(self):
-        return Response[Error](
-            status=ResponseStatus.ERROR,
-            payload=Error(
-                code=ErrorCodes.ICMPHostNotAlive,
-                message="Хост не доступен для ICMP проверки"
-            )
-        )
-
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[ICMPCheckerResponse]]:
 
         try:
             host = await async_ping(self.target, privileged=ICMP_PRIVILEGED)
         except NameLookupError:
-            return self.create_not_alive_response()
-
+            return create_not_alive_response()
         if not host.is_alive:
-            return self.create_not_alive_response()
+            return create_not_alive_response()
         return Response[ICMPCheckerResponse](
             status=ResponseStatus.OK,
             payload=ICMPCheckerResponse(

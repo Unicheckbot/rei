@@ -1,4 +1,5 @@
 import re
+from typing import Union
 
 from requests import Session, Response as RequestResponse
 from requests.exceptions import ConnectionError
@@ -6,12 +7,15 @@ from requests.exceptions import ConnectionError
 from rei.checkers.base import BaseChecker
 from rei.utils import run_in_eventloop
 from core.coretypes import (
-    Response, HttpCheckerResponse,
-    ResponseStatus, ErrorCodes, Error,
+    Response,
+    HttpCheckerResponse,
+    ResponseStatus,
+    ErrorCodes,
+    Error,
 )
 
 
-class HttpChecker(BaseChecker):
+class HttpChecker(BaseChecker[HttpCheckerResponse]):
 
     default_schema = "http://"
     default_schema_re = re.compile("^[hH][tT][tT][pP].*")
@@ -21,13 +25,13 @@ class HttpChecker(BaseChecker):
         self.port = port
         self.session = Session()
 
-    def request(self, url: str):
+    def request(self, url: str) -> RequestResponse:
         return self.session.head(
             url,
             allow_redirects=True,
         )
 
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[HttpCheckerResponse]]:
 
         url = f"{self.target}:{self.port}"
         if not self.default_schema_re.match(url):

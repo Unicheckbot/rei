@@ -1,9 +1,14 @@
 import socket
 import asyncio
-from typing import Tuple
+from typing import Tuple, Union
 
 from core.coretypes import (
-    Response, PortResponse, ResponseStatus, Error, ErrorCodes, PortDetails
+    Response,
+    PortResponse,
+    ResponseStatus,
+    Error,
+    ErrorCodes,
+    PortDetails
 )
 from rei.checkers.base import BaseChecker
 
@@ -15,7 +20,7 @@ exceptions = {
 }
 
 
-class TCPPortChecker(BaseChecker):
+class TCPPortChecker(BaseChecker[PortResponse]):
 
     def __init__(self, target: str, port: int):
         self.port = port
@@ -40,7 +45,7 @@ class TCPPortChecker(BaseChecker):
             return True, 'Неизвестно'
         return True, service
 
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[PortResponse]]:
         port_opened, service = await self._check_target()
         if port_opened:
             return Response(
