@@ -1,11 +1,6 @@
 import re
 from typing import Union
 
-from requests import Session, Response as RequestResponse
-from requests.exceptions import ConnectionError
-
-from rei.checkers.base import BaseChecker
-from rei.utils import run_in_eventloop
 from core.coretypes import (
     Response,
     HttpCheckerResponse,
@@ -13,6 +8,9 @@ from core.coretypes import (
     ErrorCodes,
     Error,
 )
+from httpx import AsyncClient
+
+from rei.checkers.base import BaseChecker
 
 
 class HttpChecker(BaseChecker[HttpCheckerResponse]):
@@ -20,16 +18,10 @@ class HttpChecker(BaseChecker[HttpCheckerResponse]):
     default_schema = "http://"
     default_schema_re = re.compile("^[hH][tT][tT][pP].*")
 
-    def __init__(self, target: str, port: int):
+    def __init__(self, target: str, port: int, client: AsyncClient):
         super(HttpChecker, self).__init__(target)
         self.port = port
-        self.session = Session()
-
-    def request(self, url: str) -> RequestResponse:
-        return self.session.get(
-            url,
-            allow_redirects=True,
-        )
+        self._client = client
 
     async def check(self) -> Union[Response[Error], Response[HttpCheckerResponse]]:
 
@@ -38,7 +30,7 @@ class HttpChecker(BaseChecker[HttpCheckerResponse]):
             url = f"{self.default_schema}{url}"
 
         try:
-            request: RequestResponse = await run_in_eventloop(self.request, url)
+            response = await self._client.get(url, follow_redirects=True)
         except ConnectionError:
             return Response[Error](
                 status=ResponseStatus.ERROR,
@@ -51,7 +43,7 @@ class HttpChecker(BaseChecker[HttpCheckerResponse]):
         return Response[HttpCheckerResponse](
             status=ResponseStatus.OK,
             payload=HttpCheckerResponse(
-                time=request.elapsed.total_seconds(),
-                status_code=request.status_code
+                time=response.elapsed.total_seconds(),
+                status_code=response.status_code
             ),
         )

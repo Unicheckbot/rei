@@ -11,38 +11,38 @@ from core.coretypes import (
     SPTMod,
     SPTServerResponse
 )
-from requests import Session
+from httpx import AsyncClient
 
 from rei.checkers.base import BaseChecker
 
 
 class SPTChecker(BaseChecker[SPTServerResponse]):
 
-    def __init__(self, target: str, session: Session):
+    def __init__(self, target: str, client: AsyncClient):
         super().__init__(target)
-        self._session = session
+        self._client = client
 
-    def _send_request(self, path: str) -> str:
-        response = self._session.get(f"{self.target}/{path}")
+    async def _send_request(self, path: str) -> str:
+        response = await self._client.get(f"{self.target}/{path}")
         response.raise_for_status()
         return zlib.decompress(response.content).decode("utf-8")
 
-    def _get_ping(self) -> bool:
-        result = self._send_request("launcher/ping")
+    async def _get_ping(self) -> bool:
+        result = await self._send_request("launcher/ping")
         return True if result == "pong!" else False
 
-    def _get_server_version(self) -> str:
-        return self._send_request("launcher/server/version").replace('"', '')
+    async def _get_server_version(self) -> str:
+        return (await self._send_request("launcher/server/version")).replace('"', '')
 
-    def _get_game_version(self) -> str:
-        return self._send_request("launcher/profile/compatibleTarkovVersion").replace('"', '')
+    async def _get_game_version(self) -> str:
+        return (await self._send_request("launcher/profile/compatibleTarkovVersion")).replace('"', '')
 
-    def _get_server_connect_info(self) -> SPTConfig:
-        response = json.loads(self._send_request("launcher/server/connect"))
+    async def _get_server_connect_info(self) -> SPTConfig:
+        response = json.loads(await self._send_request("launcher/server/connect"))
         return SPTConfig(**response)
 
-    def _get_server_mods(self) -> list[SPTMod]:
-        response = json.loads(self._send_request("launcher/server/loadedServerMods"))
+    async def _get_server_mods(self) -> list[SPTMod]:
+        response = json.loads(await self._send_request("launcher/server/loadedServerMods"))
         return [
             SPTMod(
                 name=response[key]["name"],
@@ -55,7 +55,7 @@ class SPTChecker(BaseChecker[SPTServerResponse]):
 
     async def check(self) -> Union[Response[Error], Response[SPTServerResponse]]:
         try:
-            self._get_ping()
+            await self._get_ping()
         except:  # noqa
             return Response[Error](
                 status=ResponseStatus.ERROR,
@@ -66,13 +66,11 @@ class SPTChecker(BaseChecker[SPTServerResponse]):
             )
 
         payload = SPTServerResponse(
-            aki_version=self._get_server_version(),
-            game_version=self._get_game_version(),
-            config=self._get_server_connect_info(),
-            mods=self._get_server_mods()
+            aki_version=await self._get_server_version(),
+            game_version=await self._get_game_version(),
+            config=await self._get_server_connect_info(),
+            mods=await self._get_server_mods()
         )
-
-        self._get_server_mods()
 
         return Response[SPTServerResponse](
             status=ResponseStatus.OK,

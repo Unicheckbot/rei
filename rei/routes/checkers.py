@@ -1,6 +1,3 @@
-from typing import Any
-
-from requests import Session
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 from starlette.routing import Route
@@ -17,7 +14,7 @@ from rei.checkers.source import SourceChecker
 @Counter('http')
 async def http(request: Request) -> JSONResponse:
     target, port = check_target_port(request)
-    checker = HttpChecker(target, port)
+    checker = HttpChecker(target, port, request.app.state.http_client)
     return JSONResponse((await checker.check()).dict())
 
 
@@ -53,7 +50,7 @@ async def source(request: Request) -> JSONResponse:
 @Counter('spt')
 async def spt(request: Request) -> JSONResponse:
     target = request.query_params.get("target")
-    checker = SPTChecker(target=target, session=Session())
+    checker = SPTChecker(target=target, client=request.app.state.http_client)
     return JSONResponse((await checker.check()).dict())
 
 routes = [
