@@ -21,7 +21,7 @@ ICMP_PRIVILEGED = int(os.environ.get("ICMP_PRIVILEGED", True))
 
 # DON'T CHANGE LINES BELOW
 TOKEN = secrets.token_urlsafe(32)
-VERSION = "0.2.1"
+VERSION = "0.3.1"
 NAME = "Rei"
 
 DEBUG = int(os.getenv("DEBUG", 1))
