@@ -8,8 +8,7 @@ from core.coretypes import (
     ResponseStatus,
     MinecraftDetails
 )
-# TODO: fix types here
-from mcstatus import MinecraftServer # type: ignore
+from mcstatus import JavaServer
 from rei.checkers.base import BaseChecker
 import socket
 
@@ -27,7 +26,7 @@ class MinecraftChecker(BaseChecker[MinecraftResponse]):
     async def check(self) -> Union[Response[Error], Response[MinecraftResponse]]:
 
         try:
-            server = MinecraftServer.lookup(self.address)
+            server = JavaServer.lookup(self.address)
             status = await server.async_status()
         except (socket.gaierror, ConnectionRefusedError, TimeoutError):
             return Response[Error](
@@ -45,7 +44,7 @@ class MinecraftChecker(BaseChecker[MinecraftResponse]):
             details=MinecraftDetails(
                 version=status.version.name,
                 protocol=status.version.protocol,
-                port=server.port if self.port is None else None,
+                port=self.port,
                 max_players=status.players.max,
                 online=status.players.online
             )
