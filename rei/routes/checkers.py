@@ -1,3 +1,5 @@
+from typing import Any
+
 from requests import Session
 from starlette.responses import JSONResponse
 from starlette.requests import Request
@@ -13,21 +15,21 @@ from rei.checkers.source import SourceChecker
 
 
 @Counter('http')
-async def http(request: Request):
+async def http(request: Request) -> JSONResponse:
     target, port = check_target_port(request)
     checker = HttpChecker(target, port)
     return JSONResponse((await checker.check()).dict())
 
 
 @Counter('icmp')
-async def icmp(request: Request):
+async def icmp(request: Request) -> JSONResponse:
     target = request.query_params.get("target")
     checker = ICMPChecker(target)
     return JSONResponse((await checker.check()).dict())
 
 
 @Counter('minecraft')
-async def minecraft(request: Request):
+async def minecraft(request: Request) -> JSONResponse:
     target = request.query_params.get("target")
     port = request.query_params.get("port", None)
     checker = MinecraftChecker(target, port)
@@ -35,21 +37,21 @@ async def minecraft(request: Request):
 
 
 @Counter('tcp')
-async def tcp(request: Request):
+async def tcp(request: Request) -> JSONResponse:
     target, port = check_target_port(request)
     checker = TCPPortChecker(target, port)
     return JSONResponse((await checker.check()).dict())
 
 
 @Counter('source')
-async def source(request: Request):
+async def source(request: Request) -> JSONResponse:
     target, port = check_target_port(request)
     checker = SourceChecker(target, port)
     return JSONResponse((await checker.check()).dict())
 
 
 @Counter('spt')
-async def spt(request: Request):
+async def spt(request: Request) -> JSONResponse:
     target = request.query_params.get("target")
     checker = SPTChecker(target=target, session=Session())
     return JSONResponse((await checker.check()).dict())

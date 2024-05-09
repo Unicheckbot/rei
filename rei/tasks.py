@@ -14,7 +14,7 @@ class BadRequestForAPI(Exception):
 logger = logging.getLogger("uvicorn.info")
 
 
-async def register_node():
+async def register_node() -> None:
     if DEBUG is True:
         logger.info(f"Token: {TOKEN}")
     logger.info("Registering or updating node on API server...")

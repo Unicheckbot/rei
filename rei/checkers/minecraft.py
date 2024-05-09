@@ -1,14 +1,19 @@
-from typing import Optional
+from typing import Optional, Union
 
 from core.coretypes import (
-    Response, Error, ErrorCodes, MinecraftResponse, ResponseStatus, MinecraftDetails
+    Response,
+    Error,
+    ErrorCodes,
+    MinecraftResponse,
+    ResponseStatus,
+    MinecraftDetails
 )
-from mcstatus import MinecraftServer
+from mcstatus import JavaServer
 from rei.checkers.base import BaseChecker
 import socket
 
 
-class MinecraftChecker(BaseChecker):
+class MinecraftChecker(BaseChecker[MinecraftResponse]):
 
     def __init__(self, target: str, port: Optional[int]):
         super().__init__(target)
@@ -18,10 +23,10 @@ class MinecraftChecker(BaseChecker):
         else:
             self.address = f"{self.target}:{self.port}"
 
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[MinecraftResponse]]:
 
         try:
-            server = MinecraftServer.lookup(self.address)
+            server = JavaServer.lookup(self.address)
             status = await server.async_status()
         except (socket.gaierror, ConnectionRefusedError, TimeoutError):
             return Response[Error](
@@ -39,7 +44,7 @@ class MinecraftChecker(BaseChecker):
             details=MinecraftDetails(
                 version=status.version.name,
                 protocol=status.version.protocol,
-                port=server.port if self.port is None else None,
+                port=self.port,
                 max_players=status.players.max,
                 online=status.players.online
             )

@@ -1,14 +1,22 @@
 import json
 import zlib
+from typing import Union
 
-from core.coretypes import Response, ResponseStatus, Error, ErrorCodes, SPTConfig, SPTMod, SPTServerResponse
+from core.coretypes import (
+    Response,
+    ResponseStatus,
+    Error,
+    ErrorCodes,
+    SPTConfig,
+    SPTMod,
+    SPTServerResponse
+)
 from requests import Session
 
 from rei.checkers.base import BaseChecker
 
 
-
-class SPTChecker(BaseChecker):
+class SPTChecker(BaseChecker[SPTServerResponse]):
 
     def __init__(self, target: str, session: Session):
         super().__init__(target)
@@ -21,7 +29,7 @@ class SPTChecker(BaseChecker):
 
     def _get_ping(self) -> bool:
         result = self._send_request("launcher/ping")
-        return True if result == "pong!" else None
+        return True if result == "pong!" else False
 
     def _get_server_version(self) -> str:
         return self._send_request("launcher/server/version").replace('"', '')
@@ -33,7 +41,7 @@ class SPTChecker(BaseChecker):
         response = json.loads(self._send_request("launcher/server/connect"))
         return SPTConfig(**response)
 
-    def _get_server_mods(self):
+    def _get_server_mods(self) -> list[SPTMod]:
         response = json.loads(self._send_request("launcher/server/loadedServerMods"))
         return [
             SPTMod(
@@ -45,10 +53,10 @@ class SPTChecker(BaseChecker):
             for key in response.keys()
         ]
 
-    async def check(self) -> Response:
+    async def check(self) -> Union[Response[Error], Response[SPTServerResponse]]:
         try:
             self._get_ping()
-        except: # noqa
+        except:  # noqa
             return Response[Error](
                 status=ResponseStatus.ERROR,
                 payload=Error(
