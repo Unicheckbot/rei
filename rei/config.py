@@ -32,7 +32,8 @@ METHODS_COUNTER = {
     "minecraft": 0,
     "tcp": 0,
     "source": 0,
-    "spt": 0
+    "spt": 0,
+    "vintagestory": 0
 }
 
 INFO = {

@@ -3,6 +3,7 @@ from starlette.requests import Request
 from starlette.routing import Route
 
 from rei.checkers.spt import SPTChecker
+from rei.checkers.vintagestory import VintageStoryChecker
 from rei.routes.utils import check_target_port, Counter
 from rei.checkers.http import HttpChecker
 from rei.checkers.icmp import ICMPChecker
@@ -53,11 +54,19 @@ async def spt(request: Request) -> JSONResponse:
     checker = SPTChecker(target=target, client=request.app.state.http_client)
     return JSONResponse((await checker.check()).dict())
 
+
+@Counter('vintagestory')
+async def vintagestory(request: Request) -> JSONResponse:
+    target, port = check_target_port(request)
+    checker = VintageStoryChecker(target, port, request.app.state.http_client)
+    return JSONResponse((await checker.check()).dict())
+
 routes = [
     Route('/http', http),
     Route('/icmp', icmp),
     Route('/minecraft', minecraft),
     Route('/tcp', tcp),
     Route('/source', source),
-    Route('/spt', spt)
+    Route('/spt', spt),
+    Route('/vintagestory', vintagestory)
 ]
