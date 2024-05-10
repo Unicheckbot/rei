@@ -3,11 +3,11 @@ from typing import Union
 from core.coretypes import (
     Response,
     Error,
-    ResponseStatus, 
+    ResponseStatus,
     ErrorCodes,
     VSServer
 )
-from httpx import AsyncClient
+from httpx import AsyncClient, ConnectError, ConnectTimeout
 
 from rei.checkers.base import BaseChecker
 
@@ -24,7 +24,16 @@ class VintageStoryChecker(BaseChecker[VSServer]):
         return [VSServer(**server) for server in data["data"]]
 
     async def check(self) -> Union[Response[Error], Response[VSServer]]:
-        servers = await self._get_servers_from_masterserver()
+        try:
+            servers = await self._get_servers_from_masterserver()
+        except (ConnectError, ConnectTimeout):
+            return Response[Error](
+                status=ResponseStatus.ERROR,
+                payload=Error(
+                    message="Мастер-сервер не доступен",
+                    code=ErrorCodes.ConnectError,
+                ),
+            )
         server: list[VSServer] = list(filter(lambda x: x.server_ip == f"{self.target}:{self.port}", servers))
         if not server:
             return Response[Error](
