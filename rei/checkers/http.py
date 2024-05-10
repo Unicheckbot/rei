@@ -8,7 +8,7 @@ from core.coretypes import (
     ErrorCodes,
     Error,
 )
-from httpx import AsyncClient
+from httpx import AsyncClient, ConnectTimeout, ConnectError
 
 from rei.checkers.base import BaseChecker
 
@@ -31,7 +31,7 @@ class HttpChecker(BaseChecker[HttpCheckerResponse]):
 
         try:
             response = await self._client.get(url, follow_redirects=True)
-        except ConnectionError:
+        except (ConnectError, ConnectTimeout):
             return Response[Error](
                 status=ResponseStatus.ERROR,
                 payload=Error(
