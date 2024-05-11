@@ -1,7 +1,9 @@
-version: '3.3'
+version: '3.8'
 services:
   api:
-    build: .
+    build:
+      context: .
+      target: runtime
     command: uvicorn rei.app:app --port 8000 --host 0.0.0.0 --proxy-headers --no-use-colors
     ports:
       - ${PORT}:8000
