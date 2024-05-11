@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rei"
-version = "0.4.1"
+version = "0.4.2"
 description = ""
 authors = ["kiriharu <kiriharu@yandex.ru>"]
 

@@ -3,7 +3,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
 
-from rei.config import NODE_NAME, NODE_TOWN, NODE_COUNTRY
+from rei.config import NODE_NAME, NODE_TOWN, NODE_COUNTRY, VERSION
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -27,4 +27,5 @@ class NodeInfoMiddleware(BaseHTTPMiddleware):
         response.headers['x-node-name'] = NODE_NAME
         response.headers['x-node-town'] = NODE_TOWN
         response.headers['x-node-country'] = NODE_COUNTRY
+        response.headers['x-node-version'] = VERSION
         return response
