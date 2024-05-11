@@ -9,14 +9,15 @@ from core.coretypes import (
     ErrorCodes,
     SPTConfig,
     SPTMod,
-    SPTServerResponse
+    SPTDetails,
+    SPTResponse
 )
 from httpx import AsyncClient
 
 from rei.checkers.base import BaseChecker
 
 
-class SPTChecker(BaseChecker[SPTServerResponse]):
+class SPTChecker(BaseChecker[SPTResponse]):
 
     def __init__(self, target: str, client: AsyncClient):
         super().__init__(target)
@@ -53,7 +54,7 @@ class SPTChecker(BaseChecker[SPTServerResponse]):
             for key in response.keys()
         ]
 
-    async def check(self) -> Union[Response[Error], Response[SPTServerResponse]]:
+    async def check(self) -> Union[Response[Error], Response[SPTResponse]]:
         try:
             await self._get_ping()
         except:  # noqa
@@ -64,15 +65,16 @@ class SPTChecker(BaseChecker[SPTServerResponse]):
                     code=ErrorCodes.ConnectError
                 ),
             )
-
-        payload = SPTServerResponse(
+        response = SPTResponse()
+        details = SPTDetails(
             aki_version=await self._get_server_version(),
             game_version=await self._get_game_version(),
             config=await self._get_server_connect_info(),
             mods=await self._get_server_mods()
         )
 
-        return Response[SPTServerResponse](
+        return Response[SPTResponse](
             status=ResponseStatus.OK,
-            payload=payload
+            payload=response,
+            details=details
         )

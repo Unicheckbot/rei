@@ -5,25 +5,26 @@ from core.coretypes import (
     Error,
     ResponseStatus,
     ErrorCodes,
-    VSServer
+    VintageStoryResponse,
+    VintageStoryDetails
 )
 from httpx import AsyncClient, ConnectError, ConnectTimeout
 
 from rei.checkers.base import BaseChecker
 
 
-class VintageStoryChecker(BaseChecker[VSServer]):
+class VintageStoryChecker(BaseChecker[VintageStoryResponse]):
     def __init__(self, target: str, port: int, client: AsyncClient):
         super().__init__(target)
         self.port = port
         self._client = client
 
-    async def _get_servers_from_masterserver(self) -> list[VSServer]:
+    async def _get_servers_from_masterserver(self) -> list[VintageStoryDetails]:
         response = await self._client.get("https://masterserver.vintagestory.at/api/v1/")
         data = response.json()
-        return [VSServer(**server) for server in data["data"]]
+        return [VintageStoryDetails(**server) for server in data["data"]]
 
-    async def check(self) -> Union[Response[Error], Response[VSServer]]:
+    async def check(self) -> Union[Response[Error], Response[VintageStoryResponse]]:
         try:
             servers = await self._get_servers_from_masterserver()
         except (ConnectError, ConnectTimeout):
@@ -34,7 +35,7 @@ class VintageStoryChecker(BaseChecker[VSServer]):
                     code=ErrorCodes.ConnectError,
                 ),
             )
-        server: list[VSServer] = list(filter(lambda x: x.server_ip == f"{self.target}:{self.port}", servers))
+        server: list[VintageStoryDetails] = list(filter(lambda x: x.server_ip == f"{self.target}:{self.port}", servers))
         if not server:
             return Response[Error](
                 status=ResponseStatus.ERROR,
@@ -43,7 +44,8 @@ class VintageStoryChecker(BaseChecker[VSServer]):
                     code=ErrorCodes.InvalidHostname,
                 ),
             )
-        return Response[VSServer](
+        return Response[VintageStoryResponse](
             status=ResponseStatus.OK,
-            payload=server[0]
+            payload=VintageStoryResponse(),
+            details=server[0]
         )
