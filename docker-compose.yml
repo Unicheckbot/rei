@@ -1,12 +1,15 @@
 version: '3.8'
 services:
   api:
-    build:
-      context: .
-      target: runtime
+    image: ghcr.io/unicheck/rei:latest
     command: uvicorn rei.app:app --port 8000 --host 0.0.0.0 --proxy-headers --no-use-colors
     ports:
       - ${PORT}:8000
     restart: unless-stopped
     env_file:
       - .env
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 600
