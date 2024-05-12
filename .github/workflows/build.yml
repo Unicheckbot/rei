@@ -29,5 +29,5 @@ jobs:
         target: runtime
         push: true
         tags: |
-          ghcr.io/Unicheckbot/rei:latest
-          ghcr.io/Unicheckbot/rei:${{ github.event.release.tag_name }}
+          ghcr.io/unicheckbot/rei:latest
+          ghcr.io/unicheckbot/rei:${{ github.event.release.tag_name }}
