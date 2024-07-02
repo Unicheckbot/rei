@@ -14,4 +14,4 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 600 --label-enable true
+    command: --interval 600 --label-enable
