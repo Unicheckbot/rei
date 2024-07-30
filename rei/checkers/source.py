@@ -51,6 +51,6 @@ class SourceChecker(BaseChecker[SourceServerResponse]):
                     ping=info.ping
                 ),
                 details=SourceServerDetails(
-                    **info.__dict__, players=players, rules=rules
+                    **dict(info), players=players, rules=rules
                 )
             )
