@@ -9,7 +9,8 @@ from core.coretypes import (
     ResponseStatus,
     ErrorCodes,
     SourceServerResponse,
-    SourceServerDetails
+    SourceServerDetails,
+    SourceServerPlayer
 )
 
 from rei.checkers.base import BaseChecker
@@ -36,7 +37,13 @@ class SourceChecker(BaseChecker[SourceServerResponse]):
 
         try:
             info: a2s.SourceInfo = await a2s.ainfo(self.address)
-            players = await a2s.aplayers(self.address)
+            players = [
+                SourceServerPlayer(
+                    name=player.name,
+                    duration=player.duration,
+                    score=player.score
+                ) for player in await a2s.aplayers(self.address)
+            ]
             rules = await a2s.arules(self.address)
         except a2s.BrokenMessageError:
             return send_error("Сервер вернул несериализуемый ответ")
