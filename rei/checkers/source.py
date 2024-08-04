@@ -34,9 +34,16 @@ class SourceChecker(BaseChecker[SourceServerResponse]):
         self.address = (self.target, self.port)
 
     async def check(self) -> Union[Response[Error], Response[SourceServerResponse]]:
-
         try:
             info: a2s.SourceInfo = await a2s.ainfo(self.address)
+        except a2s.BrokenMessageError:
+            return send_error("Сервер вернул несериализуемый ответ")
+        except socket.gaierror:
+            return send_error("Неправильный или несуществующий адрес")
+        except asyncio.TimeoutError:
+            return send_error("Таймаут")
+
+        try:
             players = [
                 SourceServerPlayer(
                     name=player.name,
@@ -44,20 +51,20 @@ class SourceChecker(BaseChecker[SourceServerResponse]):
                     score=player.score
                 ) for player in await a2s.aplayers(self.address)
             ]
+        except (socket.gaierror, asyncio.TimeoutError, a2s.BrokenMessageError):
+            players = []
+
+        try:
             rules = await a2s.arules(self.address)
-        except a2s.BrokenMessageError:
-            return send_error("Сервер вернул несериализуемый ответ")
-        except socket.gaierror:
-            return send_error("Неправильный или несуществующий адрес")
-        except asyncio.TimeoutError:
-            return send_error("Таймаут")
-        else:
-            return Response[SourceServerResponse](
-                status=ResponseStatus.OK,
-                payload=SourceServerResponse(
-                    ping=info.ping
-                ),
-                details=SourceServerDetails(
-                    **dict(info), players=players, rules=rules
-                )
+        except (socket.gaierror, asyncio.TimeoutError, a2s.BrokenMessageError):
+            rules = {}
+
+        return Response[SourceServerResponse](
+            status=ResponseStatus.OK,
+            payload=SourceServerResponse(
+                ping=info.ping
+            ),
+            details=SourceServerDetails(
+                **dict(info), players=players, rules=rules
             )
+        )
